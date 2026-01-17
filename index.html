@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cowcow.sh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --terminal-bg: #0d0d0d;
+            --text: #e0e0e0;
+            --text-muted: #666;
+            --prompt: #98c379;
+            --command: #e5c07b;
+            --error: #e06c75;
+            --info: #61afef;
+            --success: #98c379;
+            --accent: #c678dd;
+            --cow: #e5c07b;
+            --border: #2a2a2a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text);
+            padding: 1rem;
+            overflow-x: hidden;
+        }
+
+        .terminal {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--terminal-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-btn.red { background: #ff5f56; }
+        .terminal-btn.yellow { background: #ffbd2e; }
+        .terminal-btn.green { background: #27ca40; }
+
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-right: 52px;
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            min-height: 70vh;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal-body::-webkit-scrollbar-track {
+            background: var(--terminal-bg);
+        }
+
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .output {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .prompt-line {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .prompt {
+            color: var(--prompt);
+            white-space: nowrap;
+        }
+
+        .command {
+            color: var(--command);
+        }
+
+        .error { color: var(--error); }
+        .success { color: var(--success); }
+        .info { color: var(--info); }
+        .accent { color: var(--accent); }
+        .muted { color: var(--text-muted); }
+        .cow-color { color: var(--cow); }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--command);
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            caret-color: var(--prompt);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2em;
+            background: var(--prompt);
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* ASCII art styling */
+        .ascii-art {
+            color: var(--cow);
+            font-size: 0.75rem;
+            line-height: 1.1;
+        }
+
+        /* Game canvas */
+        #game-container {
+            display: none;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #game-canvas {
+            display: block;
+            background: #111;
+        }
+
+        /* Links */
+        a {
+            color: var(--info);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Highlighted box */
+        .message-box {
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: rgba(198, 120, 221, 0.05);
+        }
+
+        .message-box .header {
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 0.5rem;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s ease-in-out infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* Phone animation */
+        .phone-ring {
+            display: inline-block;
+            animation: ring 1s ease infinite;
+        }
+
+        @keyframes ring {
+            0%, 100% { transform: rotate(0); }
+            10%, 30% { transform: rotate(-10deg); }
+            20%, 40% { transform: rotate(10deg); }
+            50% { transform: rotate(0); }
+        }
+
+        /* Hide game controls on mobile */
+        @media (max-width: 600px) {
+            .terminal-body {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .ascii-art {
+                font-size: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-btn red"></div>
+            <div class="terminal-btn yellow"></div>
+            <div class="terminal-btn green"></div>
+            <div class="terminal-title">cowcow@friendship ~ zsh</div>
+        </div>
+
+        <div class="terminal-body" id="terminal">
+            <div id="output"></div>
+            <div id="game-container">
+                <canvas id="game-canvas" width="400" height="400"></canvas>
+            </div>
+            <div class="input-line" id="input-line">
+                <span class="prompt">nicolas@cowcow:~$</span>
+                <input type="text" id="input" autofocus autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const terminal = document.getElementById('terminal');
+        const gameContainer = document.getElementById('game-container');
+        const gameCanvas = document.getElementById('game-canvas');
+        const gameCtx = gameCanvas.getContext('2d');
+
+        let commandHistory = [];
+        let historyIndex = -1;
+        let currentGame = null;
+        let snakeGame = null;
+
+        // ASCII Art
+        const cowArt = `
+<span class="cow-color">        (__) 
+        (oo) 
+  /------\\/  
+ / |    ||   
+*  /\\---/\\   
+   ~~   ~~   </span>
+<span class="muted">"moo." - cowcow, probably</span>`;
+
+        const nixLogo = `
+<span class="info">   ⟨ ⟩
+  ⟨   ⟩
+ ⟨  N  ⟩
+  ⟨   ⟩
+   ⟨ ⟩</span>`;
+
+        const welcomeMessage = `
+<span class="accent">╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║   <span class="cow-color">🐄 Welcome to cowcow.sh - A message for Nicolas Mattia 🐄</span>   ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝</span>
+
+${cowArt}
+
+Hey <span class="success">Nicolas</span>! Someone made this page just for you.
+
+Type <span class="command">help</span> to see what you can do here.
+Or just type <span class="command">message</span> to read what this is all about.
+
+<span class="muted">Hint: there are easter eggs. Because of course there are.</span>
+`;
+
+        const helpText = `
+<span class="accent">Available commands:</span>
+
+  <span class="command">help</span>        Show this help message
+  <span class="command">message</span>     Read the important message (start here!)
+  <span class="command">about</span>       Learn about cowcow
+  <span class="command">snake</span>       Play Snake 🐍
+  <span class="command">guess</span>       Play the number guessing game
+  <span class="command">nix</span>         A poem for the Nix lover
+  <span class="command">haskell</span>     Functional programming appreciation
+  <span class="command">cowsay</span>      Make the cow say something
+  <span class="command">matrix</span>      Enter the matrix
+  <span class="command">clear</span>       Clear the terminal
+  <span class="command">exit</span>        Try to leave (you can't)
+
+<span class="muted">Pro tip: Try typing random things. Some might work.</span>
+`;
+
+        const theMessage = `
+<div class="message-box">
+<span class="header">📬 A MESSAGE FOR NICOLAS "COWCOW" MATTIA</span>
+
+Hey cowcow,
+
+I've been thinking about you lately. 
+
+It's been too long since we've properly talked. Life gets busy with 
+work, projects, debugging Nix flakes at 2am... you know how it is.
+
+But here's the thing: <span class="success">I miss you, man.</span>
+
+I miss our conversations about functional programming and whether 
+monads are just monoids in the category of endofunctors. I miss 
+your enthusiasm about whatever new Raspberry Pi project you're 
+hacking on. I miss just... talking.
+
+So here's my ask:
+
+<span class="accent">☎️  Can we schedule a call? Just to catch up?</span>
+
+No agenda. No "let's sync on deliverables." Just two friends 
+talking like we used to.
+
+Send me a message. Pick a time. Let's make it happen.
+
+<span class="cow-color">Your friend who built this ridiculous website just to ask you this</span>
+
+</div>
+
+<span class="info">Type <span class="command">yes</span> if you're in. Or play some games while you think about it.</span>
+`;
+
+        const aboutText = `
+<span class="accent">About Nicolas "cowcow" Mattia:</span>
+
+• <span class="info">Location:</span> Zurich, Switzerland 🇨🇭
+• <span class="info">Occupation:</span> Software Engineer & Nix Whisperer
+• <span class="info">Website:</span> <a href="https://nmattia.com" target="_blank">nmattia.com</a>
+• <span class="info">GitHub:</span> <a href="https://github.com/nmattia" target="_blank">@nmattia</a>
+
+<span class="accent">Known for:</span>
+• Building cool stuff with Nix
+• Functional programming wizardry (Haskell enthusiast)
+• WebGL shaders that make the rest of us feel inadequate
+• 3D printing IKEA accessories (SKÅPA!)
+• Making label printers work via SSH because why not
+• Writing blog posts that are actually interesting
+
+<span class="accent">Likely current status:</span>
+• Debugging a Nix derivation
+• Or writing a Haskell library
+• Or 3D printing something useful
+• Or all of the above simultaneously
+
+${cowArt}
+`;
+
+        const nixPoem = `
+${nixLogo}
+
+<span class="accent">Ode to Nix</span>
+<span class="muted">(for Nicolas, who gets it)</span>
+
+Roses are red,
+Violets are blue,
+My build is reproducible,
+And so can yours too.
+
+No more "works on my machine,"
+No dependency hell,
+With flakes and derivations,
+Everything works well.
+
+<span class="info">let
+  friendship = import ./nicolas.nix;
+in
+  friendship.callForever { 
+    inherit laughter memories; 
+  }</span>
+
+<span class="muted">// This poem compiles. I checked.</span>
+`;
+
+        const haskellText = `
+<span class="accent">A Haskell Appreciation Post:</span>
+
+<span class="info">-- | A function to express friendship
+friendship :: Person -> Person -> IO Memories
+friendship nicolas friend = do
+    memories <- shareExperiences [coding, laughing, debugging]
+    when (tooLongSinceLastCall memories) $ do
+        putStrLn "Hey, we should catch up!"
+        scheduleCall nicolas friend
+    return memories
+
+-- | The main point
+main :: IO ()
+main = do
+    result <- friendship cowcow you
+    print $ "Friendship level: " ++ show (evaluate result)
+    -- Output: "Friendship level: Maximum"</span>
+
+<span class="muted">Type safety extends to friendships. Ours compiles without warnings.</span>
+`;
+
+        // Cowsay function
+        function cowsay(message) {
+            const maxLen = Math.min(40, message.length);
+            const border = '-'.repeat(maxLen + 2);
+            const paddedMsg = message.length > 40 
+                ? message.match(/.{1,40}/g).map(line => `| ${line.padEnd(40)} |`).join('\n')
+                : `| ${message.padEnd(maxLen)} |`;
+            
+            return `
+<span class="cow-color"> ${border}
+${paddedMsg}
+ ${border}
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
+                ||----w |
+                ||     ||</span>`;
+        }
+
+        // Matrix effect
+        function startMatrix() {
+            const chars = 'ニコラスマティア牛NIXHASKELL01';
+            const columns = Math.floor(terminal.offsetWidth / 14);
+            const drops = Array(columns).fill(0);
+            
+            let matrixOutput = '';
+            let iterations = 0;
+            const maxIterations = 50;
+            
+            const interval = setInterval(() => {
+                let line = '';
+                for (let i = 0; i < columns; i++) {
+                    if (Math.random() > 0.95) {
+                        line += `<span class="success">${chars[Math.floor(Math.random() * chars.length)]}</span>`;
+                    } else {
+                        line += ' ';
+                    }
+                }
+                appendOutput(line + '\n');
+                iterations++;
+                
+                if (iterations >= maxIterations) {
+                    clearInterval(interval);
+                    appendOutput('\n<span class="accent">Wake up, Nicolas...</span>\n');
+                    appendOutput('<span class="accent">The Matrix has you...</span>\n');
+                    appendOutput('<span class="accent">Follow the white cow.</span> 🐄\n\n');
+                }
+            }, 100);
+        }
+
+        // Snake Game
+        class SnakeGame {
+            constructor() {
+                this.gridSize = 20;
+                this.tileCount = 20;
+                this.snake = [{x: 10, y: 10}];
+                this.direction = {x: 0, y: 0};
+                this.food = this.randomFood();
+                this.score = 0;
+                this.gameOver = false;
+                this.started = false;
+            }
+
+            randomFood() {
+                return {
+                    x: Math.floor(Math.random() * this.tileCount),
+                    y: Math.floor(Math.random() * this.tileCount)
+                };
+            }
+
+            update() {
+                if (!this.started || this.gameOver) return;
+
+                const head = {
+                    x: this.snake[0].x + this.direction.x,
+                    y: this.snake[0].y + this.direction.y
+                };
+
+                // Wall collision
+                if (head.x < 0 || head.x >= this.tileCount || 
+                    head.y < 0 || head.y >= this.tileCount) {
+                    this.gameOver = true;
+                    return;
+                }
+
+                // Self collision
+                for (let segment of this.snake) {
+                    if (head.x === segment.x && head.y === segment.y) {
+                        this.gameOver = true;
+                        return;
+                    }
+                }
+
+                this.snake.unshift(head);
+
+                // Food collision
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.score += 10;
+                    this.food = this.randomFood();
+                } else {
+                    this.snake.pop();
+                }
+            }
+
+            draw() {
+                // Clear
+                gameCtx.fillStyle = '#111';
+                gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+                // Grid
+                gameCtx.strokeStyle = '#1a1a1a';
+                for (let i = 0; i <= this.tileCount; i++) {
+                    gameCtx.beginPath();
+                    gameCtx.moveTo(i * this.gridSize, 0);
+                    gameCtx.lineTo(i * this.gridSize, gameCanvas.height);
+                    gameCtx.stroke();
+                    gameCtx.beginPath();
+                    gameCtx.moveTo(0, i * this.gridSize);
+                    gameCtx.lineTo(gameCanvas.width, i * this.gridSize);
+                    gameCtx.stroke();
+                }
+
+                // Snake
+                this.snake.forEach((segment, index) => {
+                    gameCtx.fillStyle = index === 0 ? '#98c379' : '#7cb668';
+                    gameCtx.fillRect(
+                        segment.x * this.gridSize + 1,
+                        segment.y * this.gridSize + 1,
+                        this.gridSize - 2,
+                        this.gridSize - 2
+                    );
+                });
+
+                // Food (it's a cow emoji area)
+                gameCtx.fillStyle = '#e5c07b';
+                gameCtx.fillRect(
+                    this.food.x * this.gridSize + 1,
+                    this.food.y * this.gridSize + 1,
+                    this.gridSize - 2,
+                    this.gridSize - 2
+                );
+
+                // Score
+                gameCtx.fillStyle = '#e0e0e0';
+                gameCtx.font = '14px JetBrains Mono';
+                gameCtx.fillText(`Score: ${this.score}`, 10, 20);
+
+                if (!this.started) {
+                    gameCtx.fillStyle = 'rgba(0,0,0,0.7)';
+                    gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    gameCtx.fillStyle = '#e0e0e0';
+                    gameCtx.font = '16px JetBrains Mono';
+                    gameCtx.textAlign = 'center';
+                    gameCtx.fillText('Press ARROW KEYS to start', gameCanvas.width/2, gameCanvas.height/2);
+                    gameCtx.fillText('Collect the golden squares!', gameCanvas.width/2, gameCanvas.height/2 + 25);
+                    gameCtx.textAlign = 'left';
+                }
+
+                if (this.gameOver) {
+                    gameCtx.fillStyle = 'rgba(0,0,0,0.7)';
+                    gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+                    gameCtx.fillStyle = '#e06c75';
+                    gameCtx.font = '20px JetBrains Mono';
+                    gameCtx.textAlign = 'center';
+                    gameCtx.fillText('GAME OVER', gameCanvas.width/2, gameCanvas.height/2 - 15);
+                    gameCtx.fillStyle = '#e0e0e0';
+                    gameCtx.font = '14px JetBrains Mono';
+                    gameCtx.fillText(`Final Score: ${this.score}`, gameCanvas.width/2, gameCanvas.height/2 + 15);
+                    gameCtx.fillText('Type "snake" to play again', gameCanvas.width/2, gameCanvas.height/2 + 40);
+                    gameCtx.textAlign = 'left';
+                }
+            }
+        }
+
+        // Guessing game state
+        let guessingGame = null;
+
+        function startGuessingGame() {
+            guessingGame = {
+                number: Math.floor(Math.random() * 100) + 1,
+                attempts: 0,
+                maxAttempts: 7
+            };
+            return `
+<span class="accent">🎯 Number Guessing Game</span>
+
+I'm thinking of a number between 1 and 100.
+You have <span class="info">${guessingGame.maxAttempts}</span> attempts to guess it.
+
+Type a number to guess!
+`;
+        }
+
+        function handleGuess(num) {
+            if (!guessingGame) return '<span class="error">No game in progress. Type "guess" to start!</span>';
+            
+            const guess = parseInt(num);
+            if (isNaN(guess)) return '<span class="error">Please enter a valid number!</span>';
+            
+            guessingGame.attempts++;
+            const remaining = guessingGame.maxAttempts - guessingGame.attempts;
+            
+            if (guess === guessingGame.number) {
+                const result = `
+<span class="success">🎉 CORRECT!</span> The number was <span class="accent">${guessingGame.number}</span>!
+You got it in <span class="info">${guessingGame.attempts}</span> attempts.
+
+${guessingGame.attempts <= 3 ? "Wow, you're good at this! 🌟" : 
+  guessingGame.attempts <= 5 ? "Nice job! 👏" : 
+  "Phew, just in time! 😅"}
+`;
+                guessingGame = null;
+                return result;
+            }
+            
+            if (remaining === 0) {
+                const result = `
+<span class="error">❌ Game Over!</span> The number was <span class="accent">${guessingGame.number}</span>.
+Better luck next time! Type <span class="command">guess</span> to play again.
+`;
+                guessingGame = null;
+                return result;
+            }
+            
+            const hint = guess < guessingGame.number ? 
+                '<span class="info">📈 Higher!</span>' : 
+                '<span class="info">📉 Lower!</span>';
+            
+            return `${hint} ${remaining} attempts remaining.`;
+        }
+
+        // Command handler
+        function handleCommand(cmd) {
+            const trimmed = cmd.trim().toLowerCase();
+            const args = trimmed.split(' ');
+            const command = args[0];
+            
+            // Add to history
+            if (trimmed) {
+                commandHistory.push(cmd);
+                historyIndex = commandHistory.length;
+            }
+
+            // Check if in guessing game
+            if (guessingGame && !isNaN(parseInt(trimmed))) {
+                return handleGuess(trimmed);
+            }
+
+            // Commands
+            switch (command) {
+                case '':
+                    return '';
+                
+                case 'help':
+                    return helpText;
+                
+                case 'message':
+                case 'msg':
+                case 'read':
+                    return theMessage;
+                
+                case 'about':
+                case 'whois':
+                case 'nicolas':
+                case 'cowcow':
+                    return aboutText;
+                
+                case 'nix':
+                case 'nixos':
+                    return nixPoem;
+                
+                case 'haskell':
+                case 'hs':
+                    return haskellText;
+                
+                case 'cowsay':
+                    const msg = args.slice(1).join(' ') || 'moo!';
+                    return cowsay(msg);
+                
+                case 'moo':
+                    return cowsay('MOO! 🐄');
+                
+                case 'matrix':
+                    startMatrix();
+                    return '<span class="success">Initializing matrix...</span>\n';
+                
+                case 'snake':
+                    currentGame = 'snake';
+                    snakeGame = new SnakeGame();
+                    gameContainer.style.display = 'block';
+                    gameCanvas.focus();
+                    
+                    // Game loop
+                    if (window.snakeInterval) clearInterval(window.snakeInterval);
+                    window.snakeInterval = setInterval(() => {
+                        snakeGame.update();
+                        snakeGame.draw();
+                    }, 100);
+                    
+                    return `
+<span class="accent">🐍 Snake Game Started!</span>
+
+Use <span class="command">ARROW KEYS</span> to move.
+Collect the golden squares to grow.
+Don't hit the walls or yourself!
+
+Type <span class="command">quit</span> to exit the game.
+`;
+                
+                case 'guess':
+                case 'guessing':
+                    return startGuessingGame();
+                
+                case 'quit':
+                case 'q':
+                    if (currentGame) {
+                        currentGame = null;
+                        gameContainer.style.display = 'none';
+                        if (window.snakeInterval) clearInterval(window.snakeInterval);
+                        return '<span class="info">Game closed.</span>';
+                    }
+                    return '<span class="muted">No game running.</span>';
+                
+                case 'clear':
+                case 'cls':
+                    output.innerHTML = '';
+                    return '';
+                
+                case 'exit':
+                case 'logout':
+                case 'quit':
+                    return `<span class="error">Nice try.</span> You can't leave until you've read the <span class="command">message</span>! 😄`;
+                
+                case 'yes':
+                case 'yeah':
+                case 'yep':
+                case 'sure':
+                case 'ok':
+                case 'okay':
+                    return `
+<span class="success">🎉 AMAZING!</span>
+
+${cowsay("LET'S DO THIS!")}
+
+Seriously though, this makes me really happy.
+
+<span class="accent">Next steps:</span>
+1. Close this ridiculous terminal
+2. Send me a message with some times that work
+3. We'll hop on a call
+4. Catch up like old times
+
+<span class="phone-ring">📞</span> Talk soon, cowcow!
+`;
+                
+                case 'no':
+                case 'nope':
+                case 'nah':
+                    return `
+<span class="error">Oh...</span>
+
+${cowsay("*sad moo*")}
+
+That's okay, no pressure at all. 
+But the invitation is always open, whenever you're ready.
+
+<span class="muted">You can always change your mind. Just type "yes".</span>
+`;
+
+                case 'maybe':
+                case 'perhaps':
+                case 'idk':
+                    return `
+${cowsay("I'll take it!")}
+
+<span class="info">A "maybe" from Nicolas is basically a "yes".</span>
+Let me know when you figure it out. No rush.
+`;
+                
+                case 'ls':
+                    return `
+<span class="info">friendship.nix    memories/    good-times.hs    README.md</span>
+<span class="muted">call-nicolas.sh   laughter/    inside-jokes/    cowcow.png</span>
+`;
+                
+                case 'cat':
+                    if (args[1] === 'readme.md' || args[1] === 'README.md') {
+                        return `
+<span class="accent"># README</span>
+
+This terminal was built to tell Nicolas that his friend misses him.
+
+That's it. That's the whole readme.
+
+Type <span class="command">message</span> to read it.
+`;
+                    }
+                    return '<span class="error">cat: try "cat README.md"</span>';
+                
+                case 'pwd':
+                    return '/home/nicolas/friendship';
+                
+                case 'whoami':
+                    return 'cowcow (the legend)';
+                
+                case 'sudo':
+                    return '<span class="error">nicolas is not in the sudoers file. This incident will be reported... to no one, because we\'re friends.</span>';
+                
+                case 'rm':
+                    return '<span class="error">Permission denied: cannot delete friendship</span>';
+                
+                case 'vim':
+                case 'emacs':
+                case 'nano':
+                    return `<span class="error">${command}: command not found</span>\n<span class="muted">Just kidding. But seriously, type "help" instead.</span>`;
+                
+                case 'ping':
+                    return `
+PING cowcow.friendship (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=<span class="success">0.000 ms</span>
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=<span class="success">0.000 ms</span>
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=<span class="success">0.000 ms</span>
+
+--- cowcow.friendship ping statistics ---
+<span class="info">Friendship is reachable. Zero packet loss.</span>
+`;
+                
+                case 'date':
+                    return `<span class="info">${new Date().toString()}</span>\n<span class="muted">Time to call Nicolas: NOW</span>`;
+                
+                case 'uptime':
+                    return `<span class="info">Friendship uptime: ${Math.floor((Date.now() - new Date('2020-01-01').getTime()) / (1000 * 60 * 60 * 24))} days</span>\n<span class="muted">And counting...</span>`;
+
+                case 'coffee':
+                case 'cafe':
+                case 'kaffee':
+                    return `
+<span class="cow-color">
+    ( (
+     ) )
+  ........
+  |      |]
+  \\      /
+   \`----'
+</span>
+<span class="info">Virtual coffee for Nicolas!</span>
+<span class="muted">But real coffee would be better. Let's grab some sometime?</span>
+`;
+                
+                case 'love':
+                case '❤️':
+                case '<3':
+                    return `${cowsay("Right back at you! <3")}`;
+                
+                default:
+                    // Easter eggs for random inputs
+                    if (trimmed.includes('functional')) {
+                        return '<span class="success">Ah, a person of culture!</span> Nicolas would approve.';
+                    }
+                    if (trimmed.includes('monad')) {
+                        return `<span class="accent">A monad is just a monoid in the category of endofunctors, what's the problem?</span>\n\n<span class="muted">Just kidding. Type "haskell" for more.</span>`;
+                    }
+                    if (trimmed.includes('flake')) {
+                        return '<span class="info">Ah yes, Nix flakes. The future is now.</span> Type "nix" for a poem.';
+                    }
+                    if (trimmed.includes('zurich') || trimmed.includes('zürich')) {
+                        return '<span class="info">Beautiful city! Great coffee, great chocolate, great Nicolases.</span>';
+                    }
+                    if (trimmed.includes('friend')) {
+                        return `<span class="success">That's what this is all about!</span> Type <span class="command">message</span> to read more.`;
+                    }
+                    
+                    return `<span class="error">Command not found: ${command}</span>\nType <span class="command">help</span> for available commands.`;
+            }
+        }
+
+        // Append output to terminal
+        function appendOutput(html) {
+            output.innerHTML += html;
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Execute command
+        function executeCommand(cmd) {
+            // Show the command
+            appendOutput(`<div class="prompt-line"><span class="prompt">nicolas@cowcow:~$</span> <span class="command">${escapeHtml(cmd)}</span></div>`);
+            
+            // Get result
+            const result = handleCommand(cmd);
+            
+            // Show result
+            if (result) {
+                appendOutput(`<div class="output">${result}</div>`);
+            }
+            
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Input handling
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = input.value;
+                input.value = '';
+                executeCommand(cmd);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    input.value = '';
+                }
+            }
+        });
+
+        // Game controls
+        document.addEventListener('keydown', (e) => {
+            if (currentGame === 'snake' && snakeGame) {
+                const keyMap = {
+                    'ArrowUp': {x: 0, y: -1},
+                    'ArrowDown': {x: 0, y: 1},
+                    'ArrowLeft': {x: -1, y: 0},
+                    'ArrowRight': {x: 1, y: 0}
+                };
+                
+                if (keyMap[e.key]) {
+                    e.preventDefault();
+                    const newDir = keyMap[e.key];
+                    // Prevent reverse direction
+                    if (snakeGame.direction.x + newDir.x !== 0 || 
+                        snakeGame.direction.y + newDir.y !== 0 || 
+                        !snakeGame.started) {
+                        snakeGame.direction = newDir;
+                        snakeGame.started = true;
+                    }
+                }
+            }
+        });
+
+        // Keep focus on input
+        terminal.addEventListener('click', () => {
+            if (!currentGame) input.focus();
+        });
+
+        // Initial message
+        appendOutput(`<div class="output">${welcomeMessage}</div>`);
+        input.focus();
+    </script>
+</body>
+</html>
