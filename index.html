@@ -1,1008 +1,1223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cowcow.sh</title>
+    <title>Haspel & Wolff Metternich | Werkstatt für Konservierung und Restaurierung</title>
+    <meta name="description" content="Werkstatt für Konservierung und Restaurierung von Gemälden, Rahmen und vergoldeten Objekten in Wien seit 1981.">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg: #0a0a0a;
-            --terminal-bg: #0d0d0d;
-            --text: #e0e0e0;
-            --text-muted: #666;
-            --prompt: #98c379;
-            --command: #e5c07b;
-            --error: #e06c75;
-            --info: #61afef;
-            --success: #98c379;
-            --accent: #c678dd;
-            --cow: #e5c07b;
-            --border: #2a2a2a;
+            --gold: #C9A227;
+            --gold-light: #E8D5A3;
+            --gold-dark: #8B6914;
+            --cream: #FAF8F5;
+            --cream-dark: #F0EBE3;
+            --charcoal: #2C2C2C;
+            --charcoal-light: #4A4A4A;
+            --text: #3D3D3D;
+            --text-light: #6B6B6B;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
-            background: var(--bg);
-            min-height: 100vh;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
             color: var(--text);
-            padding: 1rem;
-            overflow-x: hidden;
+            background: var(--cream);
+            line-height: 1.7;
+            font-size: 16px;
         }
-
-        .terminal {
-            max-width: 900px;
+        
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        nav.scrolled {
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
-            background: var(--terminal-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5);
-        }
-
-        .terminal-header {
+            padding: 1rem 2rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border-bottom: 1px solid var(--border);
         }
-
-        .terminal-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            text-decoration: none;
+            letter-spacing: 0.05em;
         }
-
-        .terminal-btn.red { background: #ff5f56; }
-        .terminal-btn.yellow { background: #ffbd2e; }
-        .terminal-btn.green { background: #27ca40; }
-
-        .terminal-title {
-            flex: 1;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-right: 52px;
+        
+        .logo span {
+            color: var(--gold);
         }
-
-        .terminal-body {
-            padding: 1.5rem;
-            min-height: 70vh;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .terminal-body::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .terminal-body::-webkit-scrollbar-track {
-            background: var(--terminal-bg);
-        }
-
-        .terminal-body::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .output {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .prompt-line {
+        
+        .nav-links {
             display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            gap: 2rem;
+            list-style: none;
         }
-
-        .prompt {
-            color: var(--prompt);
-            white-space: nowrap;
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            position: relative;
         }
-
-        .command {
-            color: var(--command);
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: width 0.3s ease;
         }
-
-        .error { color: var(--error); }
-        .success { color: var(--success); }
-        .info { color: var(--info); }
-        .accent { color: var(--accent); }
-        .muted { color: var(--text-muted); }
-        .cow-color { color: var(--cow); }
-
-        .input-line {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        
+        .nav-links a:hover {
+            color: var(--gold-dark);
         }
-
-        #input {
-            flex: 1;
-            background: transparent;
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
             border: none;
-            color: var(--command);
-            font-family: inherit;
-            font-size: inherit;
-            outline: none;
-            caret-color: var(--prompt);
+            cursor: pointer;
+            padding: 0.5rem;
         }
-
-        .cursor {
+        
+        .mobile-menu-btn span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 100%);
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C9A227' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-badge {
             display: inline-block;
-            width: 8px;
-            height: 1.2em;
-            background: var(--prompt);
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        /* ASCII art styling */
-        .ascii-art {
-            color: var(--cow);
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--gold);
+            color: var(--gold-dark);
             font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            color: var(--charcoal);
+            margin-bottom: 1rem;
             line-height: 1.1;
         }
-
-        /* Game canvas */
-        #game-container {
-            display: none;
-            margin: 1rem 0;
-            border: 1px solid var(--border);
-            border-radius: 4px;
+        
+        .hero h1 span {
+            display: block;
+            font-size: 0.5em;
+            font-weight: 400;
+            color: var(--gold);
+            margin-top: 0.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            font-weight: 300;
+        }
+        
+        .hero-names {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            color: var(--charcoal-light);
+            margin-bottom: 3rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--gold);
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border: 2px solid var(--gold);
+        }
+        
+        .btn:hover {
+            background: transparent;
+            color: var(--gold-dark);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--gold-dark);
+            margin-left: 1rem;
+        }
+        
+        .btn-outline:hover {
+            background: var(--gold);
+            color: white;
+        }
+        
+        /* Section Styles */
+        section {
+            padding: 6rem 2rem;
+        }
+        
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+        }
+        
+        .section-header p {
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .gold-line {
+            width: 60px;
+            height: 2px;
+            background: var(--gold);
+            margin: 1.5rem auto;
+        }
+        
+        /* Werkstatt Section */
+        #werkstatt {
+            background: white;
+        }
+        
+        .werkstatt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .werkstatt-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .werkstatt-images img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border: 4px solid var(--cream-dark);
+            transition: transform 0.3s ease;
+        }
+        
+        .werkstatt-images img:hover {
+            transform: scale(1.02);
+        }
+        
+        .werkstatt-content h3 {
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            margin-bottom: 1.5rem;
+        }
+        
+        .werkstatt-content p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        
+        .credentials {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--cream);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .credentials h4 {
+            font-size: 1rem;
+            color: var(--gold-dark);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+        
+        .credentials ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .credentials li {
+            padding: 0.3rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .credentials li::before {
+            content: '—';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+        }
+        
+        /* Projects Section */
+        #projekte {
+            background: var(--charcoal);
+            color: white;
+        }
+        
+        #projekte .section-header h2 {
+            color: white;
+        }
+        
+        #projekte .section-header p {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+        }
+        
+        .project-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .project-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .project-card:hover .project-overlay {
+            transform: translateY(0);
+        }
+        
+        .project-overlay h4 {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 0.3rem;
+        }
+        
+        .project-overlay p {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        /* Restaurierung Section */
+        #restaurierung {
+            background: var(--cream);
+        }
+        
+        .restaurierung-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .step {
+            background: white;
+            padding: 2rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -1rem;
+            left: 2rem;
+            width: 3rem;
+            height: 3rem;
+            background: var(--gold);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .step h4 {
+            font-size: 1.2rem;
+            color: var(--charcoal);
+            margin: 1rem 0 1rem;
+        }
+        
+        .step p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .restaurierung-gallery {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .restaurierung-gallery img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            filter: grayscale(20%);
+            transition: all 0.3s ease;
+        }
+        
+        .restaurierung-gallery img:hover {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+            z-index: 1;
+        }
+        
+        /* Rahmen Section */
+        #rahmen {
+            background: white;
+        }
+        
+        .rahmen-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+        
+        .rahmen-text blockquote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--charcoal);
+            border-left: 3px solid var(--gold);
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .rahmen-text p {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        
+        .rahmen-gallery {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .rahmen-gallery img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border: 3px solid var(--cream-dark);
+        }
+        
+        /* Wappen Section */
+        #wappen {
+            background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a1a 100%);
+            color: white;
+        }
+        
+        #wappen .section-header h2 {
+            color: white;
+        }
+        
+        #wappen .section-header p {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .wappen-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .wappen-item {
+            position: relative;
             overflow: hidden;
         }
-
-        #game-canvas {
-            display: block;
-            background: #111;
+        
+        .wappen-item img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            transition: transform 0.5s ease;
         }
-
-        /* Links */
-        a {
-            color: var(--info);
-            text-decoration: none;
+        
+        .wappen-item:hover img {
+            transform: scale(1.05);
         }
-
-        a:hover {
-            text-decoration: underline;
+        
+        /* Service Section */
+        #service {
+            background: var(--cream);
         }
-
-        /* Highlighted box */
-        .message-box {
-            border: 1px solid var(--accent);
-            border-radius: 4px;
-            padding: 1rem;
-            margin: 1rem 0;
-            background: rgba(198, 120, 221, 0.05);
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
         }
-
-        .message-box .header {
-            color: var(--accent);
-            font-weight: 700;
+        
+        .service-item {
+            background: white;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .service-item:hover {
+            border-bottom-color: var(--gold);
+            transform: translateY(-3px);
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+        
+        .service-item h4 {
+            font-size: 1.1rem;
+            color: var(--charcoal);
             margin-bottom: 0.5rem;
         }
-
-        /* Typing indicator */
-        .typing {
-            display: inline-flex;
-            gap: 4px;
-            margin-left: 0.5rem;
+        
+        .service-item p {
+            font-size: 0.85rem;
+            color: var(--text-light);
         }
-
-        .typing span {
-            width: 6px;
-            height: 6px;
-            background: var(--text-muted);
-            border-radius: 50%;
-            animation: typing 1.4s ease-in-out infinite;
+        
+        .service-cta {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 3rem;
+            background: white;
+            border: 1px solid var(--gold-light);
         }
-
-        .typing span:nth-child(2) { animation-delay: 0.2s; }
-        .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-4px); opacity: 1; }
+        
+        .service-cta h3 {
+            font-size: 1.5rem;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
         }
-
-        /* Phone animation */
-        .phone-ring {
-            display: inline-block;
-            animation: ring 1s ease infinite;
+        
+        .service-cta p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
         }
-
-        @keyframes ring {
-            0%, 100% { transform: rotate(0); }
-            10%, 30% { transform: rotate(-10deg); }
-            20%, 40% { transform: rotate(10deg); }
-            50% { transform: rotate(0); }
+        
+        /* Contact Section */
+        #kontakt {
+            background: white;
         }
-
-        /* Hide game controls on mobile */
-        @media (max-width: 600px) {
-            .terminal-body {
-                padding: 1rem;
-                font-size: 0.85rem;
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+        
+        .contact-info h3 {
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            margin-bottom: 2rem;
+        }
+        
+        .contact-details {
+            margin-bottom: 2rem;
+        }
+        
+        .contact-details p {
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+        
+        .contact-details a {
+            color: var(--gold-dark);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-details a:hover {
+            color: var(--gold);
+        }
+        
+        .contact-image {
+            position: relative;
+        }
+        
+        .contact-image img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .contact-card {
+            position: absolute;
+            bottom: -2rem;
+            left: 2rem;
+            right: 2rem;
+            background: var(--gold);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .contact-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .contact-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--charcoal);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo span {
+            color: var(--gold);
+        }
+        
+        footer p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 0.5rem;
+        }
+        
+        footer a {
+            color: var(--gold-light);
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 968px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--cream);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1rem;
+                border-bottom: 1px solid var(--gold-light);
             }
-
-            .ascii-art {
-                font-size: 0.5rem;
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .werkstatt-grid,
+            .rahmen-content,
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .restaurierung-gallery {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .btn-outline {
+                margin-left: 0;
+                margin-top: 1rem;
+                display: block;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            section {
+                padding: 4rem 1.5rem;
+            }
+            
+            .werkstatt-images {
+                grid-template-columns: 1fr;
+            }
+            
+            .restaurierung-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .rahmen-gallery {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <div class="terminal-header">
-            <div class="terminal-btn red"></div>
-            <div class="terminal-btn yellow"></div>
-            <div class="terminal-btn green"></div>
-            <div class="terminal-title">cowcow@friendship ~ zsh</div>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">Haspel <span>&</span> Wolff Metternich</a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#werkstatt">Werkstatt</a></li>
+                <li><a href="#projekte">Projekte</a></li>
+                <li><a href="#restaurierung">Restaurierung</a></li>
+                <li><a href="#rahmen">Rahmen</a></li>
+                <li><a href="#wappen">Wappen</a></li>
+                <li><a href="#service">Service</a></li>
+                <li><a href="#kontakt">Kontakt</a></li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
+    </nav>
 
-        <div class="terminal-body" id="terminal">
-            <div id="output"></div>
-            <div id="game-container">
-                <canvas id="game-canvas" width="400" height="400"></canvas>
-            </div>
-            <div class="input-line" id="input-line">
-                <span class="prompt">nicolas@cowcow:~$</span>
-                <input type="text" id="input" autofocus autocomplete="off" spellcheck="false">
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge">Seit 1981 in Wien</div>
+            <h1>
+                Konservierung & Restaurierung
+                <span>von Gemälden, Rahmen & vergoldeten Objekten</span>
+            </h1>
+            <p class="hero-subtitle">
+                Anhand ausgesuchter Projekte bieten wir Einblick in unser Schaffen als RestauratorIn für Gemälde und Rahmen, 
+                einen Überblick über die Bandbreite unserer Tätigkeit, sowie Informationen über Angebote und Service-Leistungen.
+            </p>
+            <p class="hero-names">Josef Haspel & Margaritha Wolff Metternich</p>
+            <a href="#projekte" class="btn">Unsere Projekte</a>
+            <a href="#kontakt" class="btn btn-outline">Kontakt</a>
+        </div>
+    </section>
+
+    <!-- Werkstatt Section -->
+    <section id="werkstatt">
+        <div class="section-container">
+            <div class="werkstatt-grid">
+                <div class="werkstatt-images">
+                    <img src="https://www.restaurierung.at/_media/werkstatt_01.jpg" alt="Werkstatt Ansicht 1">
+                    <img src="https://www.restaurierung.at/_media/werkstatt_02.jpg" alt="Werkstatt Ansicht 2">
+                </div>
+                <div class="werkstatt-content">
+                    <h3>Unsere Werkstatt</h3>
+                    <p>
+                        Unser hauptsächliches Aufgabengebiet umfasst die Konservierung und Restaurierung von Ölgemälden, 
+                        Zierrahmen, gefasster und vergoldeter Objekte. Wir betreuen Privatsammlungen, private Museen und Kirchen.
+                    </p>
+                    <p>
+                        Nach fundierter Ausbildung sowohl in Museen als auch in privaten Ateliers kam es 1981 zur Gründung 
+                        der eigenen Werkstatt. In diesen Jahren ist der kompromisslose Respekt vor dem Original und der 
+                        zuverlässige Umgang mit Kunstwerken immer erstes Gebot geblieben.
+                    </p>
+                    <div class="credentials">
+                        <h4>Ausbildung & Referenzen</h4>
+                        <ul>
+                            <li>Heeresgeschichtliches Museum, Wien</li>
+                            <li>Österreichische Galerie, Belvedere, Wien</li>
+                            <li>Stöckli, Schweiz</li>
+                            <li>Hastir, Belgien</li>
+                            <li>Mitgliedschaft im Verband der Restauratoren (VDR)</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Projekte Section -->
+    <section id="projekte">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Ausgewählte Projekte</h2>
+                <div class="gold-line"></div>
+                <p>Die Photos zeigen jeweils den Zustand vor bzw. nach der Restaurierung — Projekte von 1981 bis heute.</p>
+            </div>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/pr_main.jpg" alt="Projekt Hauptbild">
+                    <div class="project-overlay">
+                        <h4>Reiterbildnis</h4>
+                        <p>Herzog Wolfgang Wilhelm, Mitte 17. Jh.</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/KR_1-s.jpg" alt="Konservierung Restaurierung 1">
+                    <div class="project-overlay">
+                        <h4>Detailarbeit</h4>
+                        <p>Konservierung & Restaurierung</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/Pro_1-s.jpg" alt="Projekt 1">
+                    <div class="project-overlay">
+                        <h4>Porträt</h4>
+                        <p>Öl auf Leinwand, 19. Jh.</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/PR_8-s.jpg" alt="Projekt 8">
+                    <div class="project-overlay">
+                        <h4>Wandbespannung</h4>
+                        <p>Tempera auf Leinwand, um 1790</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/Pro_2-s.jpg" alt="Projekt 2">
+                    <div class="project-overlay">
+                        <h4>Mercurio e Argo</h4>
+                        <p>Giovanni Battista Langetti, 1635-1676</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/Pro_3-s.jpg" alt="Projekt 3">
+                    <div class="project-overlay">
+                        <h4>Porträt</h4>
+                        <p>Karl Siegfried Stoitzner, 1866-1943</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/Pro_5-s.jpg" alt="Projekt 5">
+                    <div class="project-overlay">
+                        <h4>Blattvergoldeter Luster</h4>
+                        <p>Sechsarmig, Ende 19. Jh.</p>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <img src="https://www.restaurierung.at/_media/Pro_6-s.jpg" alt="Projekt 6">
+                    <div class="project-overlay">
+                        <h4>Kanzel</h4>
+                        <p>St. Ägid Oberlaa, um 1750</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Restaurierung Section -->
+    <section id="restaurierung">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Konservierung & Restaurierung</h2>
+                <div class="gold-line"></div>
+                <p>Grundlegende Maßnahmen für eine fachgerechte Konservierung und Restaurierung.</p>
+            </div>
+            <div class="restaurierung-steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h4>Bestandsaufnahme</h4>
+                    <p>Untersuchung am Objekt unter Berücksichtigung objektbezogener und historischer Aspekte. 
+                    Normallicht, Streiflicht, UV-Licht, Freilegungsproben, Mikroskop — interdisziplinäre 
+                    Zusammenarbeit mit Naturwissenschaftern und Kunsthistorikern.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h4>Konzepterstellung</h4>
+                    <p>Auswertung der Untersuchungsergebnisse, Erstellung eines Konservierungs- bzw. 
+                    Restaurierungskonzeptes auch im Hinblick auf die Kosten und den zukünftigen 
+                    Aufstellungsort oder Aufbewahrungsort.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h4>Durchführung</h4>
+                    <p>Ausführung der Konservierungs- und Restaurierungsmaßnahmen wobei die Erhaltung 
+                    originaler Substanz an erster Stelle steht, aber auch die sogenannte Lesbarkeit 
+                    und die natürliche Alterung des Kunstobjektes eine wichtige Rolle spielen.</p>
+                </div>
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h4>Dokumentation</h4>
+                    <p>Erstellung einer Abschlussdokumentation die gesamten Ergebnisse und Erkenntnisse 
+                    über das Objekt sowie Fotos, verwendete Materialien, durchgeführte Arbeiten und 
+                    eventuell ein Pflege- und Wartungskonzept enthält.</p>
+                </div>
+            </div>
+            <div class="restaurierung-gallery">
+                <img src="https://www.restaurierung.at/_media/kon-res_1s.jpg" alt="Restaurierung Detail 1">
+                <img src="https://www.restaurierung.at/_media/kon-res_2s.jpg" alt="Restaurierung Detail 2">
+                <img src="https://www.restaurierung.at/_media/kon-res_3s.jpg" alt="Restaurierung Detail 3">
+                <img src="https://www.restaurierung.at/_media/KR_2-s.jpg" alt="Konservierung 2">
+                <img src="https://www.restaurierung.at/_media/KR_3-s.jpg" alt="Konservierung 3">
+                <img src="https://www.restaurierung.at/_media/KR_4-s.jpg" alt="Konservierung 4">
+                <img src="https://www.restaurierung.at/_media/KR_8-s.jpg" alt="Konservierung 8">
+                <img src="https://www.restaurierung.at/_media/KR_9-s.jpg" alt="Konservierung 9">
+                <img src="https://www.restaurierung.at/_media/KR_10-s.jpg" alt="Konservierung 10">
+                <img src="https://www.restaurierung.at/_media/KR_11-s.jpg" alt="Konservierung 11">
+                <img src="https://www.restaurierung.at/_media/KR_1-s.jpg" alt="Konservierung 1">
+                <img src="https://www.restaurierung.at/_media/KR_5-s.gif" alt="Konservierung 5">
+            </div>
+        </div>
+    </section>
+
+    <!-- Rahmen Section -->
+    <section id="rahmen">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Rahmen & Passepartout</h2>
+                <div class="gold-line"></div>
+            </div>
+            <div class="rahmen-content">
+                <div class="rahmen-text">
+                    <blockquote>„Ein Bild ohne Rahmen ist wie ein edler Stein ohne Fassung."</blockquote>
+                    <p>
+                        Diese Feststellung und die Erfahrung aus der Praxis, wo viele Ölgemälde, Graphik und 
+                        Aquarelle gar nicht oder schlecht gerahmt sind, haben uns fast zwingend dazu bewogen, 
+                        neben dem Restaurieren historischer Rahmen auch die Erzeugung von neuen Rahmen nach 
+                        historischen Mustern und alten Techniken anzubieten.
+                    </p>
+                    <p>
+                        Auch Rahmen für zeitgenössische Malerei und Graphik nach eigenen Entwürfen, Passepartout 
+                        mit Lavis für Graphik und Aquarelle sowie die richtige konservatorische Montage der Objekte 
+                        — z.B. säurefreie und alterungsbeständige Kartons, UV-Schutzgläser — runden das Angebot ab.
+                    </p>
+                </div>
+                <div class="rahmen-gallery">
+                    <img src="https://www.restaurierung.at/_media/SM_s.jpg" alt="Rahmen Silber">
+                    <img src="https://www.restaurierung.at/_media/GM_s.jpg" alt="Rahmen Gold">
+                    <img src="https://www.restaurierung.at/_media/rp_3_s.jpg" alt="Rahmen Passepartout 3">
+                    <img src="https://www.restaurierung.at/_media/rp_4_s.jpg" alt="Rahmen Passepartout 4">
+                    <img src="https://www.restaurierung.at/_media/rp_5_s.jpg" alt="Rahmen Passepartout 5">
+                    <img src="https://www.restaurierung.at/_media/R_s.gif" alt="Rahmen Detail">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wappen Section -->
+    <section id="wappen">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Wappentafeln & Stammbäume</h2>
+                <div class="gold-line"></div>
+                <p>Heraldische Formen als Ihr ganz persönliches Abzeichen.</p>
+            </div>
+            <p style="text-align: center; color: rgba(255,255,255,0.8); max-width: 800px; margin: 0 auto 3rem;">
+                Von unseren Kunden wurde immer wieder die Frage nach möglichen Kopien von Wappentafeln und 
+                Stammbäumen z.B. für Geschenke an uns gerichtet. Eine Kopie in originaler Technik bietet 
+                einen ästhetisch höheren und dauerhafteren Wert als ein Foto oder eine billige Fotokopie.
+            </p>
+            <div class="wappen-gallery">
+                <div class="wappen-item">
+                    <img src="https://www.restaurierung.at/_media/ws_1-s.jpg" alt="Wappen 1">
+                </div>
+                <div class="wappen-item">
+                    <img src="https://www.restaurierung.at/_media/ws_2-s.jpg" alt="Wappen 2">
+                </div>
+                <div class="wappen-item">
+                    <img src="https://www.restaurierung.at/_media/ws_3-s.jpg" alt="Wappen 3">
+                </div>
+                <div class="wappen-item">
+                    <img src="https://www.restaurierung.at/_media/ws_4-s.jpg" alt="Wappen 4">
+                </div>
+                <div class="wappen-item">
+                    <img src="https://www.restaurierung.at/_media/ws_6-s.jpg" alt="Wappen 6">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Section -->
+    <section id="service">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Beratung & Service</h2>
+                <div class="gold-line"></div>
+            </div>
+            <div class="service-grid">
+                <div class="service-item">
+                    <div class="service-icon">📋</div>
+                    <h4>Kostenvoranschläge</h4>
+                    <p>Detaillierte Angebote für Ihre Restaurierungsprojekte</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">📐</div>
+                    <h4>Restaurierungskonzepte</h4>
+                    <p>Professionelle Planung und Durchführung</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">📝</div>
+                    <h4>Dokumentation</h4>
+                    <p>Umfassende Aufzeichnung aller Maßnahmen</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🔍</div>
+                    <h4>Kaufberatung</h4>
+                    <p>Beratung über den konservatorischen Zustand bei geplanten Käufen</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">🖼️</div>
+                    <h4>Montage & Hängung</h4>
+                    <p>Fachgerechte Montage und Hängung von Bildern</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">📦</div>
+                    <h4>Transport</h4>
+                    <p>Sicherer Transport von Kunstwerken</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">✨</div>
+                    <h4>Pflege & Wartung</h4>
+                    <p>Laufende Betreuung von Kunstgut</p>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">📚</div>
+                    <h4>Katalogisierung</h4>
+                    <p>Erfassung Ihrer Sammlung für Versicherungszwecke</p>
+                </div>
+            </div>
+            <div class="service-cta">
+                <h3>Kostenloses Beratungsgespräch</h3>
+                <p>Wir laden Sie herzlich zu einem unverbindlichen Beratungsgespräch ein.</p>
+                <a href="#kontakt" class="btn">Kontakt aufnehmen</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kontakt Section -->
+    <section id="kontakt">
+        <div class="section-container">
+            <div class="section-header">
+                <h2>Kontakt</h2>
+                <div class="gold-line"></div>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Haspel & Wolff Metternich</h3>
+                    <p style="font-style: italic; color: var(--gold-dark); margin-bottom: 2rem;">
+                        Werkstatt für Konservierung und Restaurierung
+                    </p>
+                    <div class="contact-details">
+                        <p><strong>Adresse:</strong><br>Unterlaa 32<br>A-1100 Wien, Austria</p>
+                        <p><strong>Telefon / Fax:</strong><br>+43-1-6884322</p>
+                        <p><strong>Email:</strong><br>
+                            <a href="mailto:haspel@restaurierung.at">haspel@restaurierung.at</a><br>
+                            <a href="mailto:wolffmetternich@restaurierung.at">wolffmetternich@restaurierung.at</a>
+                        </p>
+                    </div>
+                    <p style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--cream-dark);">
+                        <strong>Einladung zum Dialog:</strong><br>
+                        Erfahrungsaustausch unter Kollegen hat für uns einen hohen Stellenwert. 
+                        Wir freuen uns, wenn wir die Gelegenheit finden, uns mit anderen Restauratoren auszutauschen.
+                    </p>
+                </div>
+                <div class="contact-image">
+                    <img src="https://www.restaurierung.at/_media/beratung.jpg" alt="Beratung">
+                    <div class="contact-card">
+                        <h4>Besuchen Sie uns</h4>
+                        <p>Terminvereinbarung nach telefonischer Absprache</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Haspel <span>&</span> Wolff Metternich</div>
+            <p>Werkstatt für Konservierung und Restaurierung</p>
+            <p>Unterlaa 32, A-1100 Wien | +43-1-6884322</p>
+            <p style="margin-top: 1rem;">
+                <a href="mailto:haspel@restaurierung.at">haspel@restaurierung.at</a>
+            </p>
+            <p style="margin-top: 2rem; font-size: 0.75rem;">
+                © 2025 Haspel & Wolff Metternich. Alle Rechte vorbehalten.
+            </p>
+        </div>
+    </footer>
 
     <script>
-        const output = document.getElementById('output');
-        const input = document.getElementById('input');
-        const terminal = document.getElementById('terminal');
-        const gameContainer = document.getElementById('game-container');
-        const gameCanvas = document.getElementById('game-canvas');
-        const gameCtx = gameCanvas.getContext('2d');
-
-        let commandHistory = [];
-        let historyIndex = -1;
-        let currentGame = null;
-        let snakeGame = null;
-
-        // ASCII Art
-        const cowArt = `
-<span class="cow-color">        (__) 
-        (oo) 
-  /------\\/  
- / |    ||   
-*  /\\---/\\   
-   ~~   ~~   </span>
-<span class="muted">"moo." - cowcow, probably</span>`;
-
-        const nixLogo = `
-<span class="info">   ⟨ ⟩
-  ⟨   ⟩
- ⟨  N  ⟩
-  ⟨   ⟩
-   ⟨ ⟩</span>`;
-
-        const welcomeMessage = `
-<span class="accent">╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║   <span class="cow-color">🐄 Welcome to cowcow.sh - A message for Nicolas Mattia 🐄</span>   ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝</span>
-
-${cowArt}
-
-Hey <span class="success">Nicolas</span>! Someone made this page just for you.
-
-Type <span class="command">help</span> to see what you can do here.
-Or just type <span class="command">message</span> to read what this is all about.
-
-<span class="muted">Hint: there are easter eggs. Because of course there are.</span>
-`;
-
-        const helpText = `
-<span class="accent">Available commands:</span>
-
-  <span class="command">help</span>        Show this help message
-  <span class="command">message</span>     Read the important message (start here!)
-  <span class="command">about</span>       Learn about cowcow
-  <span class="command">snake</span>       Play Snake 🐍
-  <span class="command">guess</span>       Play the number guessing game
-  <span class="command">nix</span>         A poem for the Nix lover
-  <span class="command">haskell</span>     Functional programming appreciation
-  <span class="command">cowsay</span>      Make the cow say something
-  <span class="command">matrix</span>      Enter the matrix
-  <span class="command">clear</span>       Clear the terminal
-  <span class="command">exit</span>        Try to leave (you can't)
-
-<span class="muted">Pro tip: Try typing random things. Some might work.</span>
-`;
-
-        const theMessage = `
-<div class="message-box">
-<span class="header">📬 A MESSAGE FOR NICOLAS "COWCOW" MATTIA</span>
-
-Hey cowcow,
-
-I've been thinking about you lately. 
-
-It's been too long since we've properly talked. Life gets busy with 
-work, projects, debugging Nix flakes at 2am... you know how it is.
-
-But here's the thing: <span class="success">I miss you, man.</span>
-
-I miss our conversations about functional programming and whether 
-monads are just monoids in the category of endofunctors. I miss 
-your enthusiasm about whatever new Raspberry Pi project you're 
-hacking on. I miss just... talking.
-
-So here's my ask:
-
-<span class="accent">☎️  Can we schedule a call? Just to catch up?</span>
-
-No agenda. No "let's sync on deliverables." Just two friends 
-talking like we used to.
-
-Send me a message. Pick a time. Let's make it happen.
-
-<span class="cow-color">Your friend who built this ridiculous website just to ask you this</span>
-
-</div>
-
-<span class="info">Type <span class="command">yes</span> if you're in. Or play some games while you think about it.</span>
-`;
-
-        const aboutText = `
-<span class="accent">About Nicolas "cowcow" Mattia:</span>
-
-• <span class="info">Location:</span> Zurich, Switzerland 🇨🇭
-• <span class="info">Occupation:</span> Software Engineer & Nix Whisperer
-• <span class="info">Website:</span> <a href="https://nmattia.com" target="_blank">nmattia.com</a>
-• <span class="info">GitHub:</span> <a href="https://github.com/nmattia" target="_blank">@nmattia</a>
-
-<span class="accent">Known for:</span>
-• Building cool stuff with Nix
-• Functional programming wizardry (Haskell enthusiast)
-• WebGL shaders that make the rest of us feel inadequate
-• 3D printing IKEA accessories (SKÅPA!)
-• Making label printers work via SSH because why not
-• Writing blog posts that are actually interesting
-
-<span class="accent">Likely current status:</span>
-• Debugging a Nix derivation
-• Or writing a Haskell library
-• Or 3D printing something useful
-• Or all of the above simultaneously
-
-${cowArt}
-`;
-
-        const nixPoem = `
-${nixLogo}
-
-<span class="accent">Ode to Nix</span>
-<span class="muted">(for Nicolas, who gets it)</span>
-
-Roses are red,
-Violets are blue,
-My build is reproducible,
-And so can yours too.
-
-No more "works on my machine,"
-No dependency hell,
-With flakes and derivations,
-Everything works well.
-
-<span class="info">let
-  friendship = import ./nicolas.nix;
-in
-  friendship.callForever { 
-    inherit laughter memories; 
-  }</span>
-
-<span class="muted">// This poem compiles. I checked.</span>
-`;
-
-        const haskellText = `
-<span class="accent">A Haskell Appreciation Post:</span>
-
-<span class="info">-- | A function to express friendship
-friendship :: Person -> Person -> IO Memories
-friendship nicolas friend = do
-    memories <- shareExperiences [coding, laughing, debugging]
-    when (tooLongSinceLastCall memories) $ do
-        putStrLn "Hey, we should catch up!"
-        scheduleCall nicolas friend
-    return memories
-
--- | The main point
-main :: IO ()
-main = do
-    result <- friendship cowcow you
-    print $ "Friendship level: " ++ show (evaluate result)
-    -- Output: "Friendship level: Maximum"</span>
-
-<span class="muted">Type safety extends to friendships. Ours compiles without warnings.</span>
-`;
-
-        // Cowsay function
-        function cowsay(message) {
-            const maxLen = Math.min(40, message.length);
-            const border = '-'.repeat(maxLen + 2);
-            const paddedMsg = message.length > 40 
-                ? message.match(/.{1,40}/g).map(line => `| ${line.padEnd(40)} |`).join('\n')
-                : `| ${message.padEnd(maxLen)} |`;
-            
-            return `
-<span class="cow-color"> ${border}
-${paddedMsg}
- ${border}
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
-                ||----w |
-                ||     ||</span>`;
-        }
-
-        // Matrix effect
-        function startMatrix() {
-            const chars = 'ニコラスマティア牛NIXHASKELL01';
-            const columns = Math.floor(terminal.offsetWidth / 14);
-            const drops = Array(columns).fill(0);
-            
-            let matrixOutput = '';
-            let iterations = 0;
-            const maxIterations = 50;
-            
-            const interval = setInterval(() => {
-                let line = '';
-                for (let i = 0; i < columns; i++) {
-                    if (Math.random() > 0.95) {
-                        line += `<span class="success">${chars[Math.floor(Math.random() * chars.length)]}</span>`;
-                    } else {
-                        line += ' ';
-                    }
-                }
-                appendOutput(line + '\n');
-                iterations++;
-                
-                if (iterations >= maxIterations) {
-                    clearInterval(interval);
-                    appendOutput('\n<span class="accent">Wake up, Nicolas...</span>\n');
-                    appendOutput('<span class="accent">The Matrix has you...</span>\n');
-                    appendOutput('<span class="accent">Follow the white cow.</span> 🐄\n\n');
-                }
-            }, 100);
-        }
-
-        // Snake Game
-        class SnakeGame {
-            constructor() {
-                this.gridSize = 20;
-                this.tileCount = 20;
-                this.snake = [{x: 10, y: 10}];
-                this.direction = {x: 0, y: 0};
-                this.food = this.randomFood();
-                this.score = 0;
-                this.gameOver = false;
-                this.started = false;
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+        
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
-
-            randomFood() {
-                return {
-                    x: Math.floor(Math.random() * this.tileCount),
-                    y: Math.floor(Math.random() * this.tileCount)
-                };
-            }
-
-            update() {
-                if (!this.started || this.gameOver) return;
-
-                const head = {
-                    x: this.snake[0].x + this.direction.x,
-                    y: this.snake[0].y + this.direction.y
-                };
-
-                // Wall collision
-                if (head.x < 0 || head.x >= this.tileCount || 
-                    head.y < 0 || head.y >= this.tileCount) {
-                    this.gameOver = true;
-                    return;
-                }
-
-                // Self collision
-                for (let segment of this.snake) {
-                    if (head.x === segment.x && head.y === segment.y) {
-                        this.gameOver = true;
-                        return;
-                    }
-                }
-
-                this.snake.unshift(head);
-
-                // Food collision
-                if (head.x === this.food.x && head.y === this.food.y) {
-                    this.score += 10;
-                    this.food = this.randomFood();
-                } else {
-                    this.snake.pop();
-                }
-            }
-
-            draw() {
-                // Clear
-                gameCtx.fillStyle = '#111';
-                gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-                // Grid
-                gameCtx.strokeStyle = '#1a1a1a';
-                for (let i = 0; i <= this.tileCount; i++) {
-                    gameCtx.beginPath();
-                    gameCtx.moveTo(i * this.gridSize, 0);
-                    gameCtx.lineTo(i * this.gridSize, gameCanvas.height);
-                    gameCtx.stroke();
-                    gameCtx.beginPath();
-                    gameCtx.moveTo(0, i * this.gridSize);
-                    gameCtx.lineTo(gameCanvas.width, i * this.gridSize);
-                    gameCtx.stroke();
-                }
-
-                // Snake
-                this.snake.forEach((segment, index) => {
-                    gameCtx.fillStyle = index === 0 ? '#98c379' : '#7cb668';
-                    gameCtx.fillRect(
-                        segment.x * this.gridSize + 1,
-                        segment.y * this.gridSize + 1,
-                        this.gridSize - 2,
-                        this.gridSize - 2
-                    );
-                });
-
-                // Food (it's a cow emoji area)
-                gameCtx.fillStyle = '#e5c07b';
-                gameCtx.fillRect(
-                    this.food.x * this.gridSize + 1,
-                    this.food.y * this.gridSize + 1,
-                    this.gridSize - 2,
-                    this.gridSize - 2
-                );
-
-                // Score
-                gameCtx.fillStyle = '#e0e0e0';
-                gameCtx.font = '14px JetBrains Mono';
-                gameCtx.fillText(`Score: ${this.score}`, 10, 20);
-
-                if (!this.started) {
-                    gameCtx.fillStyle = 'rgba(0,0,0,0.7)';
-                    gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-                    gameCtx.fillStyle = '#e0e0e0';
-                    gameCtx.font = '16px JetBrains Mono';
-                    gameCtx.textAlign = 'center';
-                    gameCtx.fillText('Press ARROW KEYS to start', gameCanvas.width/2, gameCanvas.height/2);
-                    gameCtx.fillText('Collect the golden squares!', gameCanvas.width/2, gameCanvas.height/2 + 25);
-                    gameCtx.textAlign = 'left';
-                }
-
-                if (this.gameOver) {
-                    gameCtx.fillStyle = 'rgba(0,0,0,0.7)';
-                    gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-                    gameCtx.fillStyle = '#e06c75';
-                    gameCtx.font = '20px JetBrains Mono';
-                    gameCtx.textAlign = 'center';
-                    gameCtx.fillText('GAME OVER', gameCanvas.width/2, gameCanvas.height/2 - 15);
-                    gameCtx.fillStyle = '#e0e0e0';
-                    gameCtx.font = '14px JetBrains Mono';
-                    gameCtx.fillText(`Final Score: ${this.score}`, gameCanvas.width/2, gameCanvas.height/2 + 15);
-                    gameCtx.fillText('Type "snake" to play again', gameCanvas.width/2, gameCanvas.height/2 + 40);
-                    gameCtx.textAlign = 'left';
-                }
-            }
-        }
-
-        // Guessing game state
-        let guessingGame = null;
-
-        function startGuessingGame() {
-            guessingGame = {
-                number: Math.floor(Math.random() * 100) + 1,
-                attempts: 0,
-                maxAttempts: 7
-            };
-            return `
-<span class="accent">🎯 Number Guessing Game</span>
-
-I'm thinking of a number between 1 and 100.
-You have <span class="info">${guessingGame.maxAttempts}</span> attempts to guess it.
-
-Type a number to guess!
-`;
-        }
-
-        function handleGuess(num) {
-            if (!guessingGame) return '<span class="error">No game in progress. Type "guess" to start!</span>';
-            
-            const guess = parseInt(num);
-            if (isNaN(guess)) return '<span class="error">Please enter a valid number!</span>';
-            
-            guessingGame.attempts++;
-            const remaining = guessingGame.maxAttempts - guessingGame.attempts;
-            
-            if (guess === guessingGame.number) {
-                const result = `
-<span class="success">🎉 CORRECT!</span> The number was <span class="accent">${guessingGame.number}</span>!
-You got it in <span class="info">${guessingGame.attempts}</span> attempts.
-
-${guessingGame.attempts <= 3 ? "Wow, you're good at this! 🌟" : 
-  guessingGame.attempts <= 5 ? "Nice job! 👏" : 
-  "Phew, just in time! 😅"}
-`;
-                guessingGame = null;
-                return result;
-            }
-            
-            if (remaining === 0) {
-                const result = `
-<span class="error">❌ Game Over!</span> The number was <span class="accent">${guessingGame.number}</span>.
-Better luck next time! Type <span class="command">guess</span> to play again.
-`;
-                guessingGame = null;
-                return result;
-            }
-            
-            const hint = guess < guessingGame.number ? 
-                '<span class="info">📈 Higher!</span>' : 
-                '<span class="info">📉 Lower!</span>';
-            
-            return `${hint} ${remaining} attempts remaining.`;
-        }
-
-        // Command handler
-        function handleCommand(cmd) {
-            const trimmed = cmd.trim().toLowerCase();
-            const args = trimmed.split(' ');
-            const command = args[0];
-            
-            // Add to history
-            if (trimmed) {
-                commandHistory.push(cmd);
-                historyIndex = commandHistory.length;
-            }
-
-            // Check if in guessing game
-            if (guessingGame && !isNaN(parseInt(trimmed))) {
-                return handleGuess(trimmed);
-            }
-
-            // Commands
-            switch (command) {
-                case '':
-                    return '';
-                
-                case 'help':
-                    return helpText;
-                
-                case 'message':
-                case 'msg':
-                case 'read':
-                    return theMessage;
-                
-                case 'about':
-                case 'whois':
-                case 'nicolas':
-                case 'cowcow':
-                    return aboutText;
-                
-                case 'nix':
-                case 'nixos':
-                    return nixPoem;
-                
-                case 'haskell':
-                case 'hs':
-                    return haskellText;
-                
-                case 'cowsay':
-                    const msg = args.slice(1).join(' ') || 'moo!';
-                    return cowsay(msg);
-                
-                case 'moo':
-                    return cowsay('MOO! 🐄');
-                
-                case 'matrix':
-                    startMatrix();
-                    return '<span class="success">Initializing matrix...</span>\n';
-                
-                case 'snake':
-                    currentGame = 'snake';
-                    snakeGame = new SnakeGame();
-                    gameContainer.style.display = 'block';
-                    gameCanvas.focus();
-                    
-                    // Game loop
-                    if (window.snakeInterval) clearInterval(window.snakeInterval);
-                    window.snakeInterval = setInterval(() => {
-                        snakeGame.update();
-                        snakeGame.draw();
-                    }, 100);
-                    
-                    return `
-<span class="accent">🐍 Snake Game Started!</span>
-
-Use <span class="command">ARROW KEYS</span> to move.
-Collect the golden squares to grow.
-Don't hit the walls or yourself!
-
-Type <span class="command">quit</span> to exit the game.
-`;
-                
-                case 'guess':
-                case 'guessing':
-                    return startGuessingGame();
-                
-                case 'quit':
-                case 'q':
-                    if (currentGame) {
-                        currentGame = null;
-                        gameContainer.style.display = 'none';
-                        if (window.snakeInterval) clearInterval(window.snakeInterval);
-                        return '<span class="info">Game closed.</span>';
-                    }
-                    return '<span class="muted">No game running.</span>';
-                
-                case 'clear':
-                case 'cls':
-                    output.innerHTML = '';
-                    return '';
-                
-                case 'exit':
-                case 'logout':
-                case 'quit':
-                    return `<span class="error">Nice try.</span> You can't leave until you've read the <span class="command">message</span>! 😄`;
-                
-                case 'yes':
-                case 'yeah':
-                case 'yep':
-                case 'sure':
-                case 'ok':
-                case 'okay':
-                    return `
-<span class="success">🎉 AMAZING!</span>
-
-${cowsay("LET'S DO THIS!")}
-
-Seriously though, this makes me really happy.
-
-<span class="accent">Next steps:</span>
-1. Close this ridiculous terminal
-2. Send me a message with some times that work
-3. We'll hop on a call
-4. Catch up like old times
-
-<span class="phone-ring">📞</span> Talk soon, cowcow!
-`;
-                
-                case 'no':
-                case 'nope':
-                case 'nah':
-                    return `
-<span class="error">Oh...</span>
-
-${cowsay("*sad moo*")}
-
-That's okay, no pressure at all. 
-But the invitation is always open, whenever you're ready.
-
-<span class="muted">You can always change your mind. Just type "yes".</span>
-`;
-
-                case 'maybe':
-                case 'perhaps':
-                case 'idk':
-                    return `
-${cowsay("I'll take it!")}
-
-<span class="info">A "maybe" from Nicolas is basically a "yes".</span>
-Let me know when you figure it out. No rush.
-`;
-                
-                case 'ls':
-                    return `
-<span class="info">friendship.nix    memories/    good-times.hs    README.md</span>
-<span class="muted">call-nicolas.sh   laughter/    inside-jokes/    cowcow.png</span>
-`;
-                
-                case 'cat':
-                    if (args[1] === 'readme.md' || args[1] === 'README.md') {
-                        return `
-<span class="accent"># README</span>
-
-This terminal was built to tell Nicolas that his friend misses him.
-
-That's it. That's the whole readme.
-
-Type <span class="command">message</span> to read it.
-`;
-                    }
-                    return '<span class="error">cat: try "cat README.md"</span>';
-                
-                case 'pwd':
-                    return '/home/nicolas/friendship';
-                
-                case 'whoami':
-                    return 'cowcow (the legend)';
-                
-                case 'sudo':
-                    return '<span class="error">nicolas is not in the sudoers file. This incident will be reported... to no one, because we\'re friends.</span>';
-                
-                case 'rm':
-                    return '<span class="error">Permission denied: cannot delete friendship</span>';
-                
-                case 'vim':
-                case 'emacs':
-                case 'nano':
-                    return `<span class="error">${command}: command not found</span>\n<span class="muted">Just kidding. But seriously, type "help" instead.</span>`;
-                
-                case 'ping':
-                    return `
-PING cowcow.friendship (127.0.0.1): 56 data bytes
-64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=<span class="success">0.000 ms</span>
-64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=<span class="success">0.000 ms</span>
-64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=<span class="success">0.000 ms</span>
-
---- cowcow.friendship ping statistics ---
-<span class="info">Friendship is reachable. Zero packet loss.</span>
-`;
-                
-                case 'date':
-                    return `<span class="info">${new Date().toString()}</span>\n<span class="muted">Time to call Nicolas: NOW</span>`;
-                
-                case 'uptime':
-                    return `<span class="info">Friendship uptime: ${Math.floor((Date.now() - new Date('2020-01-01').getTime()) / (1000 * 60 * 60 * 24))} days</span>\n<span class="muted">And counting...</span>`;
-
-                case 'coffee':
-                case 'cafe':
-                case 'kaffee':
-                    return `
-<span class="cow-color">
-    ( (
-     ) )
-  ........
-  |      |]
-  \\      /
-   \`----'
-</span>
-<span class="info">Virtual coffee for Nicolas!</span>
-<span class="muted">But real coffee would be better. Let's grab some sometime?</span>
-`;
-                
-                case 'love':
-                case '❤️':
-                case '<3':
-                    return `${cowsay("Right back at you! <3")}`;
-                
-                default:
-                    // Easter eggs for random inputs
-                    if (trimmed.includes('functional')) {
-                        return '<span class="success">Ah, a person of culture!</span> Nicolas would approve.';
-                    }
-                    if (trimmed.includes('monad')) {
-                        return `<span class="accent">A monad is just a monoid in the category of endofunctors, what's the problem?</span>\n\n<span class="muted">Just kidding. Type "haskell" for more.</span>`;
-                    }
-                    if (trimmed.includes('flake')) {
-                        return '<span class="info">Ah yes, Nix flakes. The future is now.</span> Type "nix" for a poem.';
-                    }
-                    if (trimmed.includes('zurich') || trimmed.includes('zürich')) {
-                        return '<span class="info">Beautiful city! Great coffee, great chocolate, great Nicolases.</span>';
-                    }
-                    if (trimmed.includes('friend')) {
-                        return `<span class="success">That's what this is all about!</span> Type <span class="command">message</span> to read more.`;
-                    }
-                    
-                    return `<span class="error">Command not found: ${command}</span>\nType <span class="command">help</span> for available commands.`;
-            }
-        }
-
-        // Append output to terminal
-        function appendOutput(html) {
-            output.innerHTML += html;
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        // Execute command
-        function executeCommand(cmd) {
-            // Show the command
-            appendOutput(`<div class="prompt-line"><span class="prompt">nicolas@cowcow:~$</span> <span class="command">${escapeHtml(cmd)}</span></div>`);
-            
-            // Get result
-            const result = handleCommand(cmd);
-            
-            // Show result
-            if (result) {
-                appendOutput(`<div class="output">${result}</div>`);
-            }
-            
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        // Escape HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Input handling
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = input.value;
-                input.value = '';
-                executeCommand(cmd);
-            } else if (e.key === 'ArrowUp') {
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                if (historyIndex > 0) {
-                    historyIndex--;
-                    input.value = commandHistory[historyIndex];
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
                 }
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (historyIndex < commandHistory.length - 1) {
-                    historyIndex++;
-                    input.value = commandHistory[historyIndex];
-                } else {
-                    historyIndex = commandHistory.length;
-                    input.value = '';
-                }
-            }
+            });
         });
-
-        // Game controls
-        document.addEventListener('keydown', (e) => {
-            if (currentGame === 'snake' && snakeGame) {
-                const keyMap = {
-                    'ArrowUp': {x: 0, y: -1},
-                    'ArrowDown': {x: 0, y: 1},
-                    'ArrowLeft': {x: -1, y: 0},
-                    'ArrowRight': {x: 1, y: 0}
-                };
-                
-                if (keyMap[e.key]) {
-                    e.preventDefault();
-                    const newDir = keyMap[e.key];
-                    // Prevent reverse direction
-                    if (snakeGame.direction.x + newDir.x !== 0 || 
-                        snakeGame.direction.y + newDir.y !== 0 || 
-                        !snakeGame.started) {
-                        snakeGame.direction = newDir;
-                        snakeGame.started = true;
-                    }
-                }
-            }
-        });
-
-        // Keep focus on input
-        terminal.addEventListener('click', () => {
-            if (!currentGame) input.focus();
-        });
-
-        // Initial message
-        appendOutput(`<div class="output">${welcomeMessage}</div>`);
-        input.focus();
     </script>
 </body>
 </html>
